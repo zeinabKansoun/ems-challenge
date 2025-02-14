@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS employees;
 -- Create employees table  
 CREATE TABLE employees (  
     id INTEGER PRIMARY KEY AUTOINCREMENT,  
-    name TEXT NOT NULL,  
+    full_name TEXT NOT NULL,  
     email TEXT NOT NULL UNIQUE,  
     phone TEXT,  
     date_of_birth DATE,  

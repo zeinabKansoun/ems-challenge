@@ -1,5 +1,6 @@
 import { useLoaderData, Form, redirect } from "react-router";
 import { getDB } from "~/db/getDB";
+import './timesheet_new.css'; // Import the CSS file
 
 export async function loader() {
   const db = await getDB();
@@ -11,10 +12,19 @@ import type { ActionFunction } from "react-router";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const employee_id = formData.get("employee_id"); // <select /> input with name="employee_id"
+  const employee_id = formData.get("employee_id");
   const start_time = formData.get("start_time");
   const end_time = formData.get("end_time");
+  if (!employee_id || !start_time || !end_time) {
+    return { error: "All fields are required." };
+  }
 
+  const startTime = new Date(start_time.toString());
+  const endTime = new Date(end_time.toString());
+
+  if (startTime > endTime) {
+    return { error: "Start time must be before end time." };
+  }
   const db = await getDB();
   await db.run(
     'INSERT INTO timesheets (employee_id, start_time, end_time) VALUES (?, ?, ?)',
@@ -25,13 +35,20 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function NewTimesheetPage() {
-  const { employees } = useLoaderData(); // Used to create a select input
+  const { employees } = useLoaderData();
   return (
-    <div>
+    <div className="container">
       <h1>Create New Timesheet</h1>
       <Form method="post">
         <div>
-          {/* Use employees to create a select input */}
+          <label htmlFor="employee_id">Employee</label>
+          <select name="employee_id" id="employee_id" required>
+            {employees.map((employee: any) => (
+              <option key={employee.id} value={employee.id}>
+                {employee.full_name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="start_time">Start Time</label>
